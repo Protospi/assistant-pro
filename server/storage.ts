@@ -1,4 +1,4 @@
-import { users, type User, type InsertUser } from "@shared/schema";
+import { users, type User, type InsertUser, type Message, type InsertMessage } from "@shared/schema";
 
 // modify the interface with any CRUD methods
 // you might need
@@ -7,15 +7,21 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getAllMessages(): Promise<Message[]>;
+  createMessage(message: InsertMessage): Promise<Message>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<number, User>;
-  currentId: number;
+  private messages: Map<number, Message>;
+  private currentUserId: number;
+  private currentMessageId: number;
 
   constructor() {
     this.users = new Map();
-    this.currentId = 1;
+    this.messages = new Map();
+    this.currentUserId = 1;
+    this.currentMessageId = 1;
   }
 
   async getUser(id: number): Promise<User | undefined> {
@@ -29,10 +35,27 @@ export class MemStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
+    const id = this.currentUserId++;
     const user: User = { ...insertUser, id };
     this.users.set(id, user);
     return user;
+  }
+
+  async getAllMessages(): Promise<Message[]> {
+    return Array.from(this.messages.values()).sort((a, b) => 
+      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+  }
+
+  async createMessage(insertMessage: InsertMessage): Promise<Message> {
+    const id = this.currentMessageId++;
+    const message: Message = { 
+      ...insertMessage, 
+      id, 
+      timestamp: new Date() 
+    };
+    this.messages.set(id, message);
+    return message;
   }
 }
 
