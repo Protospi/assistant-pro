@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Mic, Upload, Plus, ChevronRight } from "lucide-react";
+import { Send, Mic, Plus, ChevronRight } from "lucide-react";
 import { useLocation } from "wouter";
 
 export default function ChatInterface() {
@@ -27,7 +27,7 @@ export default function ChatInterface() {
       <header className="bg-white border-b border-gray-200 px-4 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-semibold text-gray-900">
-            Website Portfolio Agent
+            Drops
           </h1>
           <div className="flex space-x-2">
             <Button
@@ -117,11 +117,6 @@ export default function ChatInterface() {
                 className="w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
               >
                 <Mic className="w-4 h-4" />
-              </Button>
-              <Button
-                className="w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
-              >
-                <Upload className="w-4 h-4" />
               </Button>
             </div>
           </div>
