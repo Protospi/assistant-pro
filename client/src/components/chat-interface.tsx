@@ -47,6 +47,7 @@ function AudioPlayer({ audioUrl }: { audioUrl: string }) {
   };
 
   const formatTime = (time: number) => {
+    if (!isFinite(time) || isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -181,6 +182,23 @@ export default function ChatInterface() {
   // Send audio message mutation
   const sendAudioMutation = useMutation({
     mutationFn: async (audioBlob: Blob) => {
+      // Create audio data URL for immediate display
+      const audioDataUrl = `data:audio/webm;base64,${await blobToBase64(audioBlob)}`;
+      
+      // Optimistically add user audio message to cache first
+      const tempUserMessage = {
+        id: Date.now(),
+        content: "Transcribing audio...",
+        role: "user" as const,
+        audioUrl: audioDataUrl,
+        timestamp: new Date(),
+      };
+      
+      queryClient.setQueryData(["/api/messages"], (old: Message[] = []) => [
+        ...old,
+        tempUserMessage,
+      ]);
+
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.webm');
       
@@ -222,6 +240,18 @@ export default function ChatInterface() {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
     },
   });
+
+  // Helper function to convert blob to base64
+  const blobToBase64 = (blob: Blob): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = (reader.result as string).split(',')[1];
+        resolve(base64);
+      };
+      reader.readAsDataURL(blob);
+    });
+  };
 
   // Audio recording functions
   const startRecording = async () => {
