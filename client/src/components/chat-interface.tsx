@@ -22,32 +22,28 @@ export default function ChatInterface() {
     queryKey: ["/api/messages"],
   });
 
-  // Optimized scrolling behavior
+  // Continuous smooth scrolling during streaming
   useEffect(() => {
-    const scrollToBottom = () => {
-      if (messagesEndRef.current) {
-        const scrollContainer = messagesEndRef.current.closest('main');
-        if (scrollContainer) {
-          const isAtBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop <= scrollContainer.clientHeight + 100;
-          
-          if (isAtBottom || isStreaming) {
-            scrollContainer.scrollTo({
-              top: scrollContainer.scrollHeight,
-              behavior: isStreaming ? 'auto' : 'smooth'
-            });
-          }
-        }
+    if (messagesEndRef.current) {
+      const scrollContainer = messagesEndRef.current.closest('main');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
-    };
-
-    // Use requestAnimationFrame for smoother scrolling during streaming
-    if (isStreaming && streamingMessage) {
-      requestAnimationFrame(scrollToBottom);
-    } else if (!isStreaming) {
-      // Slight delay after streaming ends to ensure DOM is updated
-      setTimeout(scrollToBottom, 100);
     }
-  }, [messages, streamingMessage, isStreaming]);
+  }, [streamingMessage]);
+
+  // Smooth scroll for message updates when not streaming
+  useEffect(() => {
+    if (!isStreaming && messagesEndRef.current) {
+      const scrollContainer = messagesEndRef.current.closest('main');
+      if (scrollContainer) {
+        scrollContainer.scrollTo({
+          top: scrollContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
+  }, [messages]);
 
   // Send message with streaming
   const sendMessageMutation = useMutation({
