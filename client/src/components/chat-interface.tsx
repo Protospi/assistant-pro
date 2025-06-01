@@ -128,7 +128,7 @@ export default function ChatInterface() {
           <div className="flex space-x-2">
             <Button
               size="sm"
-              className="w-8 h-8 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-600 hover:border-gray-500 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
+              className="w-8 h-8 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-400 hover:border-gray-300 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
               style={{
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
               }}
@@ -137,7 +137,7 @@ export default function ChatInterface() {
             </Button>
             <Button
               size="sm"
-              className="w-8 h-8 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-600 hover:border-gray-500 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
+              className="w-8 h-8 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-400 hover:border-gray-300 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
               style={{
                 boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
               }}
@@ -282,7 +282,7 @@ export default function ChatInterface() {
             <div className="flex space-x-2">
               <Button
                 onClick={handleSend}
-                className="w-10 h-10 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-600 hover:border-gray-500 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-10 h-10 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-400 hover:border-gray-300 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
                 }}
@@ -291,7 +291,7 @@ export default function ChatInterface() {
                 <Send className="w-4 h-4" />
               </Button>
               <Button
-                className="w-10 h-10 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-600 hover:border-gray-500 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
+                className="w-10 h-10 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-400 hover:border-gray-300 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
                 style={{
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
                 }}
