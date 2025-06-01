@@ -12,7 +12,7 @@ export default function Settings() {
         <div className="max-w-4xl mx-auto flex items-center justify-end">
           <Button
             size="sm"
-            className="w-8 h-8 bg-gray-800 hover:bg-gray-700 text-white rounded-full p-0"
+            className="w-8 h-8 bg-gray-800 hover:bg-gray-700 text-white hover:text-blue-400 rounded-full p-0 border border-gray-600 hover:border-gray-500 transition-colors"
             onClick={() => setLocation('/')}
           >
             <ChevronLeft className="w-4 h-4" />

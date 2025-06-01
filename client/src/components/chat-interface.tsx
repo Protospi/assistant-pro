@@ -20,6 +20,19 @@ export default function ChatInterface() {
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
+      // Optimistically add user message to cache
+      const tempUserMessage = {
+        id: Date.now(),
+        content,
+        role: "user" as const,
+        timestamp: new Date(),
+      };
+      
+      queryClient.setQueryData(["/api/messages"], (old: Message[] = []) => [
+        ...old,
+        tempUserMessage,
+      ]);
+
       const response = await fetch("/api/messages", {
         method: "POST",
         headers: {
@@ -31,6 +44,10 @@ export default function ChatInterface() {
       return response.json();
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+    },
+    onError: () => {
+      // Revert optimistic update on error
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
     },
   });
@@ -59,13 +76,13 @@ export default function ChatInterface() {
           <div className="flex space-x-2">
             <Button
               size="sm"
-              className="w-8 h-8 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
+              className="w-8 h-8 bg-gray-900 hover:bg-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-700 hover:border-gray-600 transition-colors"
             >
               <Plus className="w-4 h-4" />
             </Button>
             <Button
               size="sm"
-              className="w-8 h-8 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
+              className="w-8 h-8 bg-gray-900 hover:bg-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-700 hover:border-gray-600 transition-colors"
               onClick={() => setLocation('/settings')}
             >
               <ChevronRight className="w-4 h-4" />
@@ -79,47 +96,49 @@ export default function ChatInterface() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           {/* Messages Area */}
           <div className="space-y-4">
-            {isLoading ? (
-              <div className="text-center text-gray-500">Loading messages...</div>
-            ) : messages.length === 0 ? (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-                <div className="space-y-4">
-                  <div>
-                    <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                      Welcome to Pedro's Website Agent!
-                    </h2>
-                    <p className="text-gray-700 mb-4">Hey there, I'm Indy 👋</p>
-                    <p className="text-gray-700 mb-4">
-                      I'm an AI digital assistant here to help you explore all things about Pedro's professional life. Feel free to ask me about:
+            {/* Default Welcome Message - Always Show */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <div className="space-y-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900 mb-3">
+                    Welcome to Pedro's Website Agent!
+                  </h2>
+                  <p className="text-gray-700 mb-4">Hey there, I'm Indy 👋</p>
+                  <p className="text-gray-700 mb-4">
+                    I'm an AI digital assistant here to help you explore all things about Pedro's professional life. Feel free to ask me about:
+                  </p>
+
+                  <ul className="space-y-2 mb-4">
+                    <li className="flex items-center text-gray-700">
+                      <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
+                      Curriculum & Skills 📋
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
+                      Working Experience 💼
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
+                      Projects 🚀
+                    </li>
+                    <li className="flex items-center text-gray-700">
+                      <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
+                      Booking Appointments 📅
+                    </li>
+                  </ul>
+
+                  <div className="border-t border-gray-200 pt-4">
+                    <p className="text-sm text-gray-600">
+                      Enjoy your visit, and let me know how I can help!
                     </p>
-
-                    <ul className="space-y-2 mb-4">
-                      <li className="flex items-center text-gray-700">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                        Curriculum & Skills 📋
-                      </li>
-                      <li className="flex items-center text-gray-700">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                        Working Experience 💼
-                      </li>
-                      <li className="flex items-center text-gray-700">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                        Projects 🚀
-                      </li>
-                      <li className="flex items-center text-gray-700">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                        Booking Appointments 📅
-                      </li>
-                    </ul>
-
-                    <div className="border-t border-gray-200 pt-4">
-                      <p className="text-sm text-gray-600">
-                        Enjoy your visit, and let me know how I can help!
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Dynamic Messages */}
+            {isLoading ? (
+              <div className="text-center text-gray-500">Loading messages...</div>
             ) : (
               messages.map((msg) => (
                 <div key={msg.id} className="space-y-2">
@@ -139,8 +158,8 @@ export default function ChatInterface() {
             )}
             
             {sendMessageMutation.isPending && (
-              <div className="text-center text-gray-500">
-                Sending message...
+              <div className="text-left text-gray-500">
+                Thinking...
               </div>
             )}
           </div>
@@ -164,12 +183,13 @@ export default function ChatInterface() {
             <div className="flex space-x-2">
               <Button
                 onClick={handleSend}
-                className="w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
+                className="w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-700 hover:border-gray-600 transition-colors"
+                disabled={sendMessageMutation.isPending}
               >
                 <Send className="w-4 h-4" />
               </Button>
               <Button
-                className="w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
+                className="w-10 h-10 bg-gray-900 hover:bg-gray-800 text-white hover:text-blue-400 rounded-full p-0 border border-gray-700 hover:border-gray-600 transition-colors"
               >
                 <Mic className="w-4 h-4" />
               </Button>
