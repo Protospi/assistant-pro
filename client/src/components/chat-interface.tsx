@@ -9,13 +9,87 @@ import type { Message } from "@shared/schema";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+// Audio Player Component
+function AudioPlayer({ audioUrl }: { audioUrl: string }) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration);
+    const handleEnded = () => setIsPlaying(false);
+
+    audio.addEventListener('timeupdate', updateTime);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateTime);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('ended', handleEnded);
+    };
+  }, []);
+
+  const togglePlayback = () => {
+    if (!audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="flex items-center space-x-2 bg-gray-800 rounded-lg p-2">
+      <Button
+        size="sm"
+        onClick={togglePlayback}
+        className="w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full p-0"
+      >
+        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+      </Button>
+      <div className="flex-1 text-xs text-gray-300">
+        <div className="flex justify-between">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+        <div className="w-full bg-gray-600 rounded-full h-1 mt-1">
+          <div 
+            className="bg-white h-1 rounded-full transition-all"
+            style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+          />
+        </div>
+      </div>
+      <audio ref={audioRef} src={audioUrl} preload="metadata" />
+    </div>
+  );
+}
+
 export default function ChatInterface() {
   const [message, setMessage] = useState("");
   const [, setLocation] = useLocation();
   const [streamingMessage, setStreamingMessage] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch all messages
   const { data: messages = [], isLoading } = useQuery<Message[]>({
@@ -103,6 +177,118 @@ export default function ChatInterface() {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
     },
   });
+
+  // Send audio message mutation
+  const sendAudioMutation = useMutation({
+    mutationFn: async (audioBlob: Blob) => {
+      const formData = new FormData();
+      formData.append('audio', audioBlob, 'recording.webm');
+      
+      setIsStreaming(true);
+      setStreamingMessage("");
+
+      const response = await fetch("/api/messages/audio", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to send audio message");
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (reader) {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            setStreamingMessage(prev => prev + chunk);
+          }
+        } finally {
+          reader.releaseLock();
+          setIsStreaming(false);
+          setStreamingMessage("");
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+    },
+    onError: () => {
+      setIsStreaming(false);
+      setStreamingMessage("");
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+    },
+  });
+
+  // Audio recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      
+      setAudioChunks([]);
+      setIsRecording(true);
+      setRecordingTime(0);
+      
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          setAudioChunks(prev => [...prev, event.data]);
+        }
+      };
+      
+      recorder.onstop = () => {
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      recorder.start();
+      setMediaRecorder(recorder);
+      
+      // Start timer (max 30 seconds)
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 30) {
+            stopRecording();
+            return 30;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+      
+      // Process audio after stopping
+      setTimeout(() => {
+        if (audioChunks.length > 0) {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          sendAudioMutation.mutate(audioBlob);
+        }
+      }, 100);
+    }
+  };
+
+  const handleMicPress = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const handleSend = () => {
     if (message.trim() && !sendMessageMutation.isPending) {
@@ -225,6 +411,11 @@ export default function ChatInterface() {
                   ) : (
                     <div className="flex justify-end">
                       <div className="bg-black text-white rounded-lg p-4 max-w-xs lg:max-w-md">
+                        {msg.audioUrl && (
+                          <div className="mb-3">
+                            <AudioPlayer audioUrl={msg.audioUrl} />
+                          </div>
+                        )}
                         <p>{msg.content}</p>
                       </div>
                     </div>
@@ -293,15 +484,26 @@ export default function ChatInterface() {
               >
                 <Send className="w-4 h-4" />
               </Button>
-              <Button
-                className="w-10 h-10 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95"
-                style={{
-                  boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
-                  borderColor: '#9ca3af'
-                }}
-              >
-                <Mic className="w-4 h-4" />
-              </Button>
+              <div className="relative">
+                <Button
+                  onClick={handleMicPress}
+                  className={`w-10 h-10 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95 ${
+                    isRecording ? 'animate-pulse border-red-500' : ''
+                  }`}
+                  style={{
+                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
+                    borderColor: isRecording ? '#ef4444' : '#9ca3af'
+                  }}
+                  disabled={sendAudioMutation.isPending}
+                >
+                  {isRecording ? <Square className="w-4 h-4 text-red-500" /> : <Mic className="w-4 h-4" />}
+                </Button>
+                {isRecording && (
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                    {recordingTime}s / 30s
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
