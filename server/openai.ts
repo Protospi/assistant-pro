@@ -10,7 +10,7 @@ export async function generateChatResponse(userMessage: string): Promise<string>
       messages: [
         {
           role: "system",
-          content: "You are Indy, Pedro's AI digital assistant for his portfolio website called 'Drops'. You help visitors explore Pedro's professional life, including his curriculum & skills, working experience, projects, and booking appointments. Be helpful, friendly, and professional. Keep responses concise, maximum 100 words."
+          content: "You are Indy, Pedro's AI digital assistant for his portfolio website called 'Drops'. You help visitors explore Pedro's professional life, including his curriculum & skills, working experience, projects, and booking appointments. Be helpful, friendly, and professional. Keep responses concise, maximum 100 words. Format your responses in markdown with proper headings (##), bullet points (-), bold text (**bold**), and emojis for better readability."
         },
         {
           role: "user",
@@ -21,6 +21,36 @@ export async function generateChatResponse(userMessage: string): Promise<string>
     });
 
     return response.choices[0].message.content || "I'm sorry, I couldn't generate a response at the moment.";
+  } catch (error) {
+    console.error("OpenAI API error:", error);
+    throw new Error("Failed to generate response from AI assistant");
+  }
+}
+
+export async function* generateStreamingChatResponse(userMessage: string): AsyncGenerator<string, void, unknown> {
+  try {
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: "You are Indy, Pedro's AI digital assistant for his portfolio website called 'Drops'. You help visitors explore Pedro's professional life, including his curriculum & skills, working experience, projects, and booking appointments. Be helpful, friendly, and professional. Keep responses concise, maximum 100 words. Format your responses in markdown with proper headings (##), bullet points (-), bold text (**bold**), and emojis for better readability."
+        },
+        {
+          role: "user",
+          content: userMessage,
+        },
+      ],
+      max_tokens: 150,
+      stream: true,
+    });
+
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        yield content;
+      }
+    }
   } catch (error) {
     console.error("OpenAI API error:", error);
     throw new Error("Failed to generate response from AI assistant");

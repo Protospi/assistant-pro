@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMessageSchema } from "@shared/schema";
-import { generateChatResponse } from "./openai";
+import { generateChatResponse, generateStreamingChatResponse } from "./openai";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all messages
@@ -15,7 +15,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Send a new message and get AI response
+  // Send a new message and get AI response with streaming
+  app.post("/api/messages/stream", async (req, res) => {
+    try {
+      const validatedData = insertMessageSchema.parse(req.body);
+      
+      // Save user message
+      const userMessage = await storage.createMessage(validatedData);
+      
+      // Set up streaming response
+      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Transfer-Encoding', 'chunked');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      
+      let fullResponse = "";
+      
+      try {
+        // Stream AI response
+        for await (const chunk of generateStreamingChatResponse(validatedData.content)) {
+          fullResponse += chunk;
+          res.write(chunk);
+        }
+        
+        // Save complete AI response
+        await storage.createMessage({
+          content: fullResponse,
+          role: "assistant"
+        });
+        
+        res.end();
+      } catch (streamError) {
+        console.error("Streaming error:", streamError);
+        res.write("\n\nI'm sorry, I encountered an error while generating the response.");
+        res.end();
+      }
+    } catch (error) {
+      console.error("Error processing message:", error);
+      res.status(500).json({ error: "Failed to process message" });
+    }
+  });
+
+  // Send a new message and get AI response (non-streaming fallback)
   app.post("/api/messages", async (req, res) => {
     try {
       const validatedData = insertMessageSchema.parse(req.body);

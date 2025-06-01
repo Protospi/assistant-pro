@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send, Mic, Plus, ChevronRight } from "lucide-react";
@@ -6,11 +6,16 @@ import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Message } from "@shared/schema";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatInterface() {
   const [message, setMessage] = useState("");
   const [, setLocation] = useLocation();
+  const [streamingMessage, setStreamingMessage] = useState("");
+  const [isStreaming, setIsStreaming] = useState(false);
   const queryClient = useQueryClient();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch all messages
   const { data: messages = [], isLoading } = useQuery<Message[]>({
@@ -66,9 +71,9 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 px-4 py-4">
+    <div className="h-screen flex flex-col">
+      {/* Fixed Header */}
+      <header className="bg-white border-b border-gray-200 px-4 py-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <h1 className="text-xl font-semibold text-gray-900">
             Drops
@@ -91,8 +96,8 @@ export default function ChatInterface() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 pb-24">
+      {/* Scrollable Main Content */}
+      <main className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 py-6">
           {/* Messages Area */}
           <div className="space-y-4">
@@ -166,8 +171,8 @@ export default function ChatInterface() {
         </div>
       </main>
 
-      {/* Input Area */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4">
+      {/* Fixed Input Area */}
+      <div className="bg-white border-t border-gray-200 px-4 py-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center space-x-3">
             <div className="flex-1 relative">
