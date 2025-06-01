@@ -128,18 +128,20 @@ export default function ChatInterface() {
           <div className="flex space-x-2">
             <Button
               size="sm"
-              className="w-8 h-8 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border-2 border-gray-300 hover:border-gray-200 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
+              className="w-8 h-8 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95"
               style={{
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
+                boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
+                borderColor: '#9ca3af'
               }}
             >
               <Plus className="w-4 h-4" />
             </Button>
             <Button
               size="sm"
-              className="w-8 h-8 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border-2 border-gray-300 hover:border-gray-200 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
+              className="w-8 h-8 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95"
               style={{
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
+                boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
+                borderColor: '#9ca3af'
               }}
               onClick={() => setLocation('/settings')}
             >
@@ -276,24 +278,26 @@ export default function ChatInterface() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder-gray-500"
+                className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-400 focus:border-gray-400 text-gray-900 placeholder-gray-500"
               />
             </div>
             <div className="flex space-x-2">
               <Button
                 onClick={handleSend}
-                className="w-10 h-10 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border-2 border-gray-300 hover:border-gray-200 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-10 h-10 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
+                  boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
+                  borderColor: '#9ca3af'
                 }}
                 disabled={sendMessageMutation.isPending}
               >
                 <Send className="w-4 h-4" />
               </Button>
               <Button
-                className="w-10 h-10 bg-gradient-to-b from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 text-white hover:text-red-400 active:text-red-500 rounded-full p-0 border-2 border-gray-300 hover:border-gray-200 shadow-lg shadow-gray-900/50 hover:shadow-gray-800/60 transition-all duration-200 active:scale-95"
+                className="w-10 h-10 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95"
                 style={{
-                  boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.3)'
+                  boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
+                  borderColor: '#9ca3af'
                 }}
               >
                 <Mic className="w-4 h-4" />
