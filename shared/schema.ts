@@ -20,12 +20,14 @@ export const messages = pgTable("messages", {
   id: serial("id").primaryKey(),
   content: text("content").notNull(),
   role: text("role").notNull(), // 'user' or 'assistant'
+  audioUrl: text("audio_url"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
 export const insertMessageSchema = createInsertSchema(messages).pick({
   content: true,
   role: true,
+  audioUrl: true,
 });
 
 export type InsertMessage = z.infer<typeof insertMessageSchema>;

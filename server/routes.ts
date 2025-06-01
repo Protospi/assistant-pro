@@ -2,7 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertMessageSchema } from "@shared/schema";
-import { generateChatResponse, generateStreamingChatResponse } from "./openai";
+import { generateChatResponse, generateStreamingChatResponse, transcribeAudio } from "./openai";
+import multer from "multer";
+import { Request } from "express";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all messages
