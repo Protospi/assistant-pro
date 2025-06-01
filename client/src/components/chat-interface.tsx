@@ -271,22 +271,29 @@ export default function ChatInterface() {
         clearInterval(recordingTimerRef.current);
         recordingTimerRef.current = null;
       }
-      
-      // Process audio after stopping
-      setTimeout(() => {
-        if (audioChunks.length > 0) {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-          sendAudioMutation.mutate(audioBlob);
-        }
-      }, 100);
     }
   };
 
-  const handleMicPress = () => {
+  // Handle the recorded audio when MediaRecorder stops
+  useEffect(() => {
+    if (!isRecording && audioChunks.length > 0) {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      sendAudioMutation.mutate(audioBlob);
+      setAudioChunks([]); // Clear chunks after use
+    }
+  }, [isRecording, audioChunks, sendAudioMutation]);
+
+  const handleMicMouseDown = () => {
+    startRecording();
+  };
+
+  const handleMicMouseUp = () => {
+    stopRecording();
+  };
+
+  const handleMicMouseLeave = () => {
     if (isRecording) {
       stopRecording();
-    } else {
-      startRecording();
     }
   };
 
@@ -486,7 +493,11 @@ export default function ChatInterface() {
               </Button>
               <div className="relative">
                 <Button
-                  onClick={handleMicPress}
+                  onMouseDown={handleMicMouseDown}
+                  onMouseUp={handleMicMouseUp}
+                  onMouseLeave={handleMicMouseLeave}
+                  onTouchStart={handleMicMouseDown}
+                  onTouchEnd={handleMicMouseUp}
                   className={`w-10 h-10 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95 ${
                     isRecording ? 'animate-pulse border-red-500' : ''
                   }`}
