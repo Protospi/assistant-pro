@@ -22,10 +22,32 @@ export default function ChatInterface() {
     queryKey: ["/api/messages"],
   });
 
-  // Auto-scroll to bottom
+  // Optimized scrolling behavior
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streamingMessage]);
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        const scrollContainer = messagesEndRef.current.closest('main');
+        if (scrollContainer) {
+          const isAtBottom = scrollContainer.scrollHeight - scrollContainer.scrollTop <= scrollContainer.clientHeight + 100;
+          
+          if (isAtBottom || isStreaming) {
+            scrollContainer.scrollTo({
+              top: scrollContainer.scrollHeight,
+              behavior: isStreaming ? 'auto' : 'smooth'
+            });
+          }
+        }
+      }
+    };
+
+    // Use requestAnimationFrame for smoother scrolling during streaming
+    if (isStreaming && streamingMessage) {
+      requestAnimationFrame(scrollToBottom);
+    } else if (!isStreaming) {
+      // Slight delay after streaming ends to ensure DOM is updated
+      setTimeout(scrollToBottom, 100);
+    }
+  }, [messages, streamingMessage, isStreaming]);
 
   // Send message with streaming
   const sendMessageMutation = useMutation({
