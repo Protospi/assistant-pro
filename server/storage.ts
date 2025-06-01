@@ -51,7 +51,8 @@ export class MemStorage implements IStorage {
     const id = this.currentMessageId++;
     const message: Message = { 
       ...insertMessage, 
-      id, 
+      id,
+      audioUrl: insertMessage.audioUrl || null,
       timestamp: new Date() 
     };
     this.messages.set(id, message);
