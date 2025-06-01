@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 210 11% 15%;
+  --muted: 210 11% 96%;
+  --muted-foreground: 215 13% 45%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 11% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 11% 15%;
+  --border: 215 13% 88%;
+  --input: 215 13% 88%;
+  --primary: 210 11% 15%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 11% 96%;
+  --secondary-foreground: 210 11% 15%;
+  --accent: 210 11% 96%;
+  --accent-foreground: 210 11% 15%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 60 9% 98%;
+  --ring: 210 11% 15%;
+  --radius: 0.5rem;
+  --gray-50: 210 11% 98%;
+  --gray-100: 210 11% 95%;
+  --gray-200: 213 13% 88%;
+  --gray-300: 213 13% 78%;
+  --gray-400: 215 13% 65%;
+  --gray-500: 215 13% 50%;
+  --gray-600: 215 16% 42%;
+  --gray-700: 215 25% 27%;
+  --gray-800: 217 33% 17%;
+  --gray-900: 222 47% 11%;
+}
+
+.dark {
+  --background: 222 47% 11%;
+  --foreground: 213 31% 91%;
+  --muted: 223 47% 11%;
+  --muted-foreground: 215 13% 65%;
+  --popover: 222 47% 11%;
+  --popover-foreground: 213 31% 91%;
+  --card: 222 47% 11%;
+  --card-foreground: 213 31% 91%;
+  --border: 223 47% 16%;
+  --input: 223 47% 16%;
+  --primary: 213 31% 91%;
+  --primary-foreground: 222 47% 11%;
+  --secondary: 223 47% 16%;
+  --secondary-foreground: 213 31% 91%;
+  --accent: 223 47% 16%;
+  --accent-foreground: 213 31% 91%;
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 213 31% 91%;
+  --ring: 216 34% 17%;
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  .bg-gray-50 {
+    background-color: hsl(var(--gray-50));
+  }
+  .bg-gray-100 {
+    background-color: hsl(var(--gray-100));
+  }
+  .bg-gray-200 {
+    background-color: hsl(var(--gray-200));
+  }
+  .bg-gray-900 {
+    background-color: hsl(var(--gray-900));
+  }
+  .text-gray-500 {
+    color: hsl(var(--gray-500));
+  }
+  .text-gray-600 {
+    color: hsl(var(--gray-600));
+  }
+  .text-gray-700 {
+    color: hsl(var(--gray-700));
+  }
+  .text-gray-900 {
+    color: hsl(var(--gray-900));
+  }
+  .border-gray-200 {
+    border-color: hsl(var(--gray-200));
+  }
+  .border-gray-300 {
+    border-color: hsl(var(--gray-300));
+  }
+}
