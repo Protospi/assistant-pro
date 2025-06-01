@@ -187,7 +187,7 @@ export default function ChatInterface() {
       
       // Optimistically add user audio message to cache first
       const tempUserMessage = {
-        id: Date.now(),
+        id: -Date.now(), // Use negative ID to distinguish temp messages
         content: "Transcribing audio...",
         role: "user" as const,
         audioUrl: audioDataUrl,
@@ -228,11 +228,14 @@ export default function ChatInterface() {
           reader.releaseLock();
           setIsStreaming(false);
           setStreamingMessage("");
+          
+          // Remove the temporary message and refresh to get the real data
+          queryClient.setQueryData(["/api/messages"], (old: Message[] = []) => 
+            old.filter(msg => msg.id !== tempUserMessage.id)
+          );
+          queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
         }
       }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
     },
     onError: () => {
       setIsStreaming(false);
