@@ -22,7 +22,12 @@ export default function ChatInterface() {
     queryKey: ["/api/messages"],
   });
 
-  // Send message mutation
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, streamingMessage]);
+
+  // Send message with streaming
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
       // Optimistically add user message to cache
@@ -38,21 +43,45 @@ export default function ChatInterface() {
         tempUserMessage,
       ]);
 
-      const response = await fetch("/api/messages", {
+      // Start streaming response
+      setIsStreaming(true);
+      setStreamingMessage("");
+
+      const response = await fetch("/api/messages/stream", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ content, role: "user" }),
       });
+
       if (!response.ok) throw new Error("Failed to send message");
-      return response.json();
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (reader) {
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value);
+            setStreamingMessage(prev => prev + chunk);
+          }
+        } finally {
+          reader.releaseLock();
+          setIsStreaming(false);
+          setStreamingMessage("");
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
     },
     onError: () => {
-      // Revert optimistic update on error
+      setIsStreaming(false);
+      setStreamingMessage("");
       queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
     },
   });
@@ -149,7 +178,23 @@ export default function ChatInterface() {
                 <div key={msg.id} className="space-y-2">
                   {msg.role === "assistant" ? (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-                      <p className="text-gray-700">{msg.content}</p>
+                      <div className="text-gray-700 prose prose-sm max-w-none">
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            h2: ({children}) => <h2 className="text-lg font-semibold text-gray-900 mt-4 mb-2">{children}</h2>,
+                            h3: ({children}) => <h3 className="text-md font-semibold text-gray-800 mt-3 mb-1">{children}</h3>,
+                            strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                            ul: ({children}) => <ul className="list-disc pl-5 space-y-1">{children}</ul>,
+                            ol: ({children}) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
+                            li: ({children}) => <li className="text-gray-700">{children}</li>,
+                            p: ({children}) => <p className="text-gray-700 mb-2">{children}</p>,
+                            code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">{children}</code>,
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
                     </div>
                   ) : (
                     <div className="flex justify-end">
@@ -162,11 +207,36 @@ export default function ChatInterface() {
               ))
             )}
             
-            {sendMessageMutation.isPending && (
+            {/* Streaming Message */}
+            {isStreaming && streamingMessage && (
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                <div className="text-gray-700 prose prose-sm max-w-none">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h2: ({children}) => <h2 className="text-lg font-semibold text-gray-900 mt-4 mb-2">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-md font-semibold text-gray-800 mt-3 mb-1">{children}</h3>,
+                      strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
+                      ul: ({children}) => <ul className="list-disc pl-5 space-y-1">{children}</ul>,
+                      ol: ({children}) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
+                      li: ({children}) => <li className="text-gray-700">{children}</li>,
+                      p: ({children}) => <p className="text-gray-700 mb-2">{children}</p>,
+                      code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">{children}</code>,
+                    }}
+                  >
+                    {streamingMessage}
+                  </ReactMarkdown>
+                </div>
+              </div>
+            )}
+            
+            {(sendMessageMutation.isPending || isStreaming) && !streamingMessage && (
               <div className="text-left text-gray-500">
                 Thinking...
               </div>
             )}
+
+            <div ref={messagesEndRef} />
           </div>
         </div>
       </main>
