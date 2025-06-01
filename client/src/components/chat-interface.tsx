@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Mic, Upload } from "lucide-react";
+import { Send, Mic, Upload, Plus, ChevronRight } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function ChatInterface() {
   const [message, setMessage] = useState("");
+  const [, setLocation] = useLocation();
 
   const handleSend = () => {
     if (message.trim()) {
@@ -32,13 +34,14 @@ export default function ChatInterface() {
               size="sm"
               className="w-8 h-8 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
             >
-              <span className="text-sm font-medium">B</span>
+              <Plus className="w-4 h-4" />
             </Button>
             <Button
               size="sm"
               className="w-8 h-8 bg-gray-900 hover:bg-gray-800 text-white rounded-full p-0"
+              onClick={() => setLocation('/settings')}
             >
-              ✕
+              <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -79,13 +82,7 @@ export default function ChatInterface() {
                 </ul>
 
                 <div className="border-t border-gray-200 pt-4">
-                  <p className="text-sm text-gray-600 font-medium mb-2">
-                    Disclaimer:
-                  </p>
                   <p className="text-sm text-gray-600">
-                    While I strive to provide accurate responses, my answers may not be 100% correct. I'm continuously learning and improving to serve you better.
-                  </p>
-                  <p className="text-sm text-gray-600 mt-2">
                     Enjoy your visit, and let me know how I can help!
                   </p>
                 </div>
