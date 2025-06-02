@@ -366,8 +366,8 @@ export default function ChatInterface() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <BotMessageSquare
-              className={`h-9 w-9 text-black ${isStreaming ? 'rotate-generating' : ''}`}
-              strokeWidth={2}
+              className={`h-8 w-8 text-black ${isStreaming ? "rotate-generating" : ""}`}
+              strokeWidth={1.8}
               fill="rgba(255, 0, 0, 0.7)"
             />
             <h1 className="text-xl font-semibold text-gray-900">Drops</h1>
