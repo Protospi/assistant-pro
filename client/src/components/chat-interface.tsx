@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Mic, Plus, ChevronRight, Square, Play, Pause } from "lucide-react";
+import { Send, Mic, Plus, ChevronRight, Square, Play, Pause, BotMessageSquare } from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -9,114 +9,7 @@ import type { Message } from "@shared/schema";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-// Logo Component with Animation
-function Logo({ className = "h-8 w-auto" }: { className?: string }) {
-  return (
-    <svg 
-      className={className}
-      viewBox="0 0 160 40" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      {/* Robot Icon */}
-      <g>
-        {/* Robot head */}
-        <rect x="8" y="12" width="16" height="14" rx="2" fill="#4f46e5" stroke="#6366f1" strokeWidth="1">
-          <animate attributeName="fill" values="#4f46e5;#6366f1;#4f46e5" dur="3s" repeatCount="indefinite" />
-        </rect>
-        
-        {/* Robot eyes */}
-        <circle cx="12" cy="17" r="1.5" fill="#ffffff">
-          <animate attributeName="r" values="1.5;1;1.5" dur="2s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="20" cy="17" r="1.5" fill="#ffffff">
-          <animate attributeName="r" values="1.5;1;1.5" dur="2s" repeatCount="indefinite" />
-        </circle>
-        
-        {/* Robot mouth */}
-        <rect x="14" y="21" width="4" height="1" rx="0.5" fill="#ffffff" />
-        
-        {/* Robot antenna */}
-        <line x1="16" y1="12" x2="16" y2="8" stroke="#6366f1" strokeWidth="1" />
-        <circle cx="16" cy="8" r="1" fill="#ef4444">
-          <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" />
-        </circle>
-      </g>
 
-      {/* Pencil */}
-      <g>
-        <rect x="32" y="18" width="12" height="2" fill="#fbbf24" />
-        <polygon points="44,18 48,20 44,22" fill="#f59e0b" />
-        <rect x="30" y="19" width="2" height="2" fill="#ef4444" />
-        
-        {/* Pencil animation */}
-        <animateTransform
-          attributeName="transform"
-          type="translate"
-          values="0,0; 2,-1; 0,0"
-          dur="2s"
-          repeatCount="indefinite"
-        />
-      </g>
-
-      {/* Text "AGENT" with drawing animation */}
-      <g>
-        <text x="52" y="25" fontSize="16" fontWeight="600" fill="#1f2937" fontFamily="Inter, sans-serif">
-          <tspan>A</tspan>
-          <tspan>
-            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="0.5s" fill="freeze" />
-            G
-          </tspan>
-          <tspan>
-            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="1s" fill="freeze" />
-            E
-          </tspan>
-          <tspan>
-            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="1.5s" fill="freeze" />
-            N
-          </tspan>
-          <tspan>
-            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="2s" fill="freeze" />
-            T
-          </tspan>
-        </text>
-        
-        {/* Drawing line effect */}
-        <path 
-          d="M52 27 L92 27" 
-          stroke="#6366f1" 
-          strokeWidth="1" 
-          strokeDasharray="40"
-          strokeDashoffset="40"
-        >
-          <animate 
-            attributeName="stroke-dashoffset" 
-            values="40;0" 
-            dur="2.5s" 
-            begin="0.5s"
-            fill="freeze" 
-          />
-        </path>
-      </g>
-
-      {/* Floating particles */}
-      <g opacity="0.6">
-        <circle cx="100" cy="15" r="1" fill="#6366f1">
-          <animate attributeName="cy" values="15;10;15" dur="3s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="105" cy="20" r="0.8" fill="#8b5cf6">
-          <animate attributeName="cy" values="20;25;20" dur="2.5s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.5s" repeatCount="indefinite" />
-        </circle>
-        <circle cx="110" cy="12" r="0.6" fill="#06b6d4">
-          <animate attributeName="cy" values="12;8;12" dur="2s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2s" repeatCount="indefinite" />
-        </circle>
-      </g>
-    </svg>
-  );
-}
 
 // Audio Player Component
 function AudioPlayer({ audioUrl }: { audioUrl: string }) {
@@ -457,8 +350,11 @@ export default function ChatInterface() {
       {/* Fixed Header */}
       <header className="bg-white border-b border-gray-200 px-4 py-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center">
-            <Logo className="h-8 w-auto" />
+          <div className="flex items-center space-x-2">
+            <BotMessageSquare className="h-6 w-6 text-black" strokeWidth={1.5} />
+            <h1 className="text-xl font-semibold text-gray-900">
+              Drops
+            </h1>
           </div>
           <div className="flex space-x-2">
             <Button
