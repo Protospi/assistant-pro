@@ -103,19 +103,16 @@
     border-color: hsl(var(--gray-300));
   }
   
-  .rotate-periodic {
-    animation: rotate-periodic 10s linear infinite;
+  .rotate-generating {
+    animation: rotate-generating 2s linear infinite;
   }
 }
 
-@keyframes rotate-periodic {
-  0% {
+@keyframes rotate-generating {
+  from {
     transform: rotate(0deg);
   }
-  10% {
-    transform: rotate(360deg);
-  }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }
