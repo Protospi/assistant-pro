@@ -8,7 +8,61 @@ import { apiRequest } from "@/lib/queryClient";
 import type { Message } from "@shared/schema";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import logoImage from '@assets/image_1748832942408.png';
+
+// Logo Component
+function Logo({ className = "h-8 w-auto" }: { className?: string }) {
+  return (
+    <svg 
+      className={className}
+      viewBox="0 0 120 40" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Main "D" shape */}
+      <path
+        d="M8 8 C8 4, 12 4, 16 4 L24 4 C32 4, 36 8, 36 16 C36 24, 32 28, 24 28 L16 28 C12 28, 8 28, 8 24 Z"
+        fill="url(#gradient1)"
+        stroke="url(#gradient2)"
+        strokeWidth="1"
+      />
+      
+      {/* Inner highlight */}
+      <path
+        d="M12 10 C12 8, 14 8, 16 8 L22 8 C28 8, 32 12, 32 16 C32 20, 28 24, 22 24 L16 24 C14 24, 12 24, 12 22 Z"
+        fill="rgba(255,255,255,0.1)"
+      />
+      
+      {/* Circuit pattern elements */}
+      <circle cx="14" cy="12" r="1" fill="#60a5fa" />
+      <circle cx="18" cy="20" r="1" fill="#60a5fa" />
+      <circle cx="26" cy="14" r="1" fill="#60a5fa" />
+      <circle cx="30" cy="18" r="1" fill="#60a5fa" />
+      
+      {/* Connecting lines */}
+      <path d="M14 13 L18 19" stroke="#60a5fa" strokeWidth="0.5" opacity="0.6" />
+      <path d="M19 20 L26 14" stroke="#60a5fa" strokeWidth="0.5" opacity="0.6" />
+      <path d="M27 14 L30 17" stroke="#60a5fa" strokeWidth="0.5" opacity="0.6" />
+      
+      {/* Text "DROPS" */}
+      <text x="48" y="25" fontSize="18" fontWeight="600" fill="#1f2937" fontFamily="Inter, sans-serif">
+        DROPS
+      </text>
+      
+      {/* Gradient definitions */}
+      <defs>
+        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3b82f6" />
+          <stop offset="50%" stopColor="#1d4ed8" />
+          <stop offset="100%" stopColor="#1e40af" />
+        </linearGradient>
+        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#60a5fa" />
+          <stop offset="100%" stopColor="#3b82f6" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
 
 // Audio Player Component
 function AudioPlayer({ audioUrl }: { audioUrl: string }) {
@@ -350,11 +404,7 @@ export default function ChatInterface() {
       <header className="bg-white border-b border-gray-200 px-4 py-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center">
-            <img 
-              src={logoImage} 
-              alt="Logo" 
-              className="h-8 w-auto"
-            />
+            <Logo className="h-8 w-auto" />
           </div>
           <div className="flex space-x-2">
             <Button
