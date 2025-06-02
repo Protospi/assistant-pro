@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
 :root {
   --background: 0 0% 100%;
@@ -101,5 +101,18 @@
   }
   .border-gray-300 {
     border-color: hsl(var(--gray-300));
+  }
+  
+  .rotate-slow {
+    animation: rotate-slow 8s linear infinite;
+  }
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
