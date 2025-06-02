@@ -151,6 +151,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Clear all messages
+  app.delete("/api/messages", async (req, res) => {
+    try {
+      await storage.clearAllMessages();
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error clearing messages:", error);
+      res.status(500).json({ error: "Failed to clear messages" });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

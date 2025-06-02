@@ -196,6 +196,17 @@ export default function ChatInterface() {
     },
   });
 
+  // Clear conversation mutation
+  const clearConversationMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("DELETE", "/api/messages");
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
+    },
+  });
+
   // Send audio message mutation
   const sendAudioMutation = useMutation({
     mutationFn: async (audioBlob: Blob) => {
@@ -359,6 +370,12 @@ export default function ChatInterface() {
     }
   };
 
+  const handleClearConversation = () => {
+    if (!clearConversationMutation.isPending) {
+      clearConversationMutation.mutate();
+    }
+  };
+
   return (
     <div className="h-screen flex flex-col">
       {/* Fixed Header */}
@@ -375,7 +392,9 @@ export default function ChatInterface() {
           <div className="flex space-x-2">
             <Button
               size="sm"
-              className="w-8 h-8 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95"
+              onClick={handleClearConversation}
+              disabled={clearConversationMutation.isPending}
+              className="w-8 h-8 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 boxShadow:
                   "inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)",

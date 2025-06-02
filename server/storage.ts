@@ -9,6 +9,7 @@ export interface IStorage {
   createUser(user: InsertUser): Promise<User>;
   getAllMessages(): Promise<Message[]>;
   createMessage(message: InsertMessage): Promise<Message>;
+  clearAllMessages(): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -57,6 +58,11 @@ export class MemStorage implements IStorage {
     };
     this.messages.set(id, message);
     return message;
+  }
+
+  async clearAllMessages(): Promise<void> {
+    this.messages.clear();
+    this.currentMessageId = 1;
   }
 }
 
