@@ -1,15 +1,22 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, Mic, Plus, ChevronRight, Square, Play, Pause, BotMessageSquare } from "lucide-react";
+import {
+  Send,
+  Mic,
+  Plus,
+  ChevronRight,
+  Square,
+  Play,
+  Pause,
+  BotMessageSquare,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import type { Message } from "@shared/schema";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
-
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Audio Player Component
 function AudioPlayer({ audioUrl }: { audioUrl: string }) {
@@ -26,14 +33,14 @@ function AudioPlayer({ audioUrl }: { audioUrl: string }) {
     const updateDuration = () => setDuration(audio.duration);
     const handleEnded = () => setIsPlaying(false);
 
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener("timeupdate", updateTime);
+    audio.addEventListener("loadedmetadata", updateDuration);
+    audio.addEventListener("ended", handleEnded);
 
     return () => {
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.removeEventListener("loadedmetadata", updateDuration);
+      audio.removeEventListener("ended", handleEnded);
     };
   }, []);
 
@@ -49,10 +56,10 @@ function AudioPlayer({ audioUrl }: { audioUrl: string }) {
   };
 
   const formatTime = (time: number) => {
-    if (!isFinite(time) || isNaN(time)) return '0:00';
+    if (!isFinite(time) || isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -62,7 +69,11 @@ function AudioPlayer({ audioUrl }: { audioUrl: string }) {
         onClick={togglePlayback}
         className="w-8 h-8 bg-gray-700 hover:bg-gray-600 text-white rounded-full p-0"
       >
-        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+        {isPlaying ? (
+          <Pause className="w-4 h-4" />
+        ) : (
+          <Play className="w-4 h-4" />
+        )}
       </Button>
       <div className="flex-1 text-xs text-gray-300">
         <div className="flex justify-between">
@@ -70,9 +81,11 @@ function AudioPlayer({ audioUrl }: { audioUrl: string }) {
           <span>{formatTime(duration)}</span>
         </div>
         <div className="w-full bg-gray-600 rounded-full h-1 mt-1">
-          <div 
+          <div
             className="bg-white h-1 rounded-full transition-all"
-            style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
+            style={{
+              width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%`,
+            }}
           />
         </div>
       </div>
@@ -88,7 +101,9 @@ export default function ChatInterface() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null,
+  );
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
   const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -102,7 +117,7 @@ export default function ChatInterface() {
   // Continuous smooth scrolling during streaming
   useEffect(() => {
     if (messagesEndRef.current) {
-      const scrollContainer = messagesEndRef.current.closest('main');
+      const scrollContainer = messagesEndRef.current.closest("main");
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
@@ -112,11 +127,11 @@ export default function ChatInterface() {
   // Smooth scroll for message updates when not streaming
   useEffect(() => {
     if (!isStreaming && messagesEndRef.current) {
-      const scrollContainer = messagesEndRef.current.closest('main');
+      const scrollContainer = messagesEndRef.current.closest("main");
       if (scrollContainer) {
         scrollContainer.scrollTo({
           top: scrollContainer.scrollHeight,
-          behavior: 'smooth'
+          behavior: "smooth",
         });
       }
     }
@@ -132,7 +147,7 @@ export default function ChatInterface() {
         role: "user" as const,
         timestamp: new Date(),
       };
-      
+
       queryClient.setQueryData(["/api/messages"], (old: Message[] = []) => [
         ...old,
         tempUserMessage,
@@ -160,9 +175,9 @@ export default function ChatInterface() {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            
+
             const chunk = decoder.decode(value);
-            setStreamingMessage(prev => prev + chunk);
+            setStreamingMessage((prev) => prev + chunk);
           }
         } finally {
           reader.releaseLock();
@@ -186,7 +201,7 @@ export default function ChatInterface() {
     mutationFn: async (audioBlob: Blob) => {
       // Create audio data URL for immediate display
       const audioDataUrl = `data:audio/webm;base64,${await blobToBase64(audioBlob)}`;
-      
+
       // Optimistically add user audio message to cache first
       const tempUserMessage = {
         id: -Date.now(), // Use negative ID to distinguish temp messages
@@ -195,15 +210,15 @@ export default function ChatInterface() {
         audioUrl: audioDataUrl,
         timestamp: new Date(),
       };
-      
+
       queryClient.setQueryData(["/api/messages"], (old: Message[] = []) => [
         ...old,
         tempUserMessage,
       ]);
 
       const formData = new FormData();
-      formData.append('audio', audioBlob, 'recording.webm');
-      
+      formData.append("audio", audioBlob, "recording.webm");
+
       setIsStreaming(true);
       setStreamingMessage("");
 
@@ -222,18 +237,18 @@ export default function ChatInterface() {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
-            
+
             const chunk = decoder.decode(value);
-            setStreamingMessage(prev => prev + chunk);
+            setStreamingMessage((prev) => prev + chunk);
           }
         } finally {
           reader.releaseLock();
           setIsStreaming(false);
           setStreamingMessage("");
-          
+
           // Remove the temporary message and refresh to get the real data
-          queryClient.setQueryData(["/api/messages"], (old: Message[] = []) => 
-            old.filter(msg => msg.id !== tempUserMessage.id)
+          queryClient.setQueryData(["/api/messages"], (old: Message[] = []) =>
+            old.filter((msg) => msg.id !== tempUserMessage.id),
           );
           queryClient.invalidateQueries({ queryKey: ["/api/messages"] });
         }
@@ -251,7 +266,7 @@ export default function ChatInterface() {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64 = (reader.result as string).split(',')[1];
+        const base64 = (reader.result as string).split(",")[1];
         resolve(base64);
       };
       reader.readAsDataURL(blob);
@@ -262,28 +277,28 @@ export default function ChatInterface() {
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-      
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+
       setAudioChunks([]);
       setIsRecording(true);
       setRecordingTime(0);
-      
+
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          setAudioChunks(prev => [...prev, event.data]);
+          setAudioChunks((prev) => [...prev, event.data]);
         }
       };
-      
+
       recorder.onstop = () => {
-        stream.getTracks().forEach(track => track.stop());
+        stream.getTracks().forEach((track) => track.stop());
       };
-      
+
       recorder.start();
       setMediaRecorder(recorder);
-      
+
       // Start timer (max 30 seconds)
       recordingTimerRef.current = setInterval(() => {
-        setRecordingTime(prev => {
+        setRecordingTime((prev) => {
           if (prev >= 30) {
             stopRecording();
             return 30;
@@ -291,9 +306,8 @@ export default function ChatInterface() {
           return prev + 1;
         });
       }, 1000);
-      
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error("Error accessing microphone:", error);
     }
   };
 
@@ -301,7 +315,7 @@ export default function ChatInterface() {
     if (mediaRecorder && isRecording) {
       mediaRecorder.stop();
       setIsRecording(false);
-      
+
       if (recordingTimerRef.current) {
         clearInterval(recordingTimerRef.current);
         recordingTimerRef.current = null;
@@ -312,7 +326,7 @@ export default function ChatInterface() {
   // Handle the recorded audio when MediaRecorder stops
   useEffect(() => {
     if (!isRecording && audioChunks.length > 0) {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
       sendAudioMutation.mutate(audioBlob);
       setAudioChunks([]); // Clear chunks after use
     }
@@ -351,18 +365,21 @@ export default function ChatInterface() {
       <header className="bg-white border-b border-gray-200 px-4 py-4 flex-shrink-0">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <BotMessageSquare className="h-6 w-6 text-black" strokeWidth={1.5} />
-            <h1 className="text-xl font-semibold text-gray-900">
-              Drops
-            </h1>
+            <BotMessageSquare
+              className="h-9 w-9 text-black"
+              strokeWidth={2}
+              fill="rgba(0, 0, 255, 0.4)"
+            />
+            <h1 className="text-xl font-semibold text-gray-900">Drops</h1>
           </div>
           <div className="flex space-x-2">
             <Button
               size="sm"
               className="w-8 h-8 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95"
               style={{
-                boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
-                borderColor: '#9ca3af'
+                boxShadow:
+                  "inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)",
+                borderColor: "#9ca3af",
               }}
             >
               <Plus className="w-4 h-4" />
@@ -371,10 +388,11 @@ export default function ChatInterface() {
               size="sm"
               className="w-8 h-8 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95"
               style={{
-                boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
-                borderColor: '#9ca3af'
+                boxShadow:
+                  "inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)",
+                borderColor: "#9ca3af",
               }}
-              onClick={() => setLocation('/settings')}
+              onClick={() => setLocation("/settings")}
             >
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -392,11 +410,13 @@ export default function ChatInterface() {
               <div className="space-y-4">
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                    Welcome to Pedro's Website Agent!
+                    Welcome to Pedro's Website!
                   </h2>
-                  <p className="text-gray-700 mb-4">Hey there, I'm Indy 👋</p>
+                  <p className="text-gray-700 mb-4">Hey there, I'm Drops 👋</p>
                   <p className="text-gray-700 mb-4">
-                    I'm an AI digital assistant here to help you explore all things about Pedro's professional life. Feel free to ask me about:
+                    I'm Pedro's digital assistant and I can help you explore all
+                    things about Pedro's professional life. Feel free to ask me
+                    about:
                   </p>
 
                   <ul className="space-y-2 mb-4">
@@ -410,11 +430,11 @@ export default function ChatInterface() {
                     </li>
                     <li className="flex items-center text-gray-700">
                       <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                      Projects 🚀
+                      Portfolio Projects 🚀
                     </li>
                     <li className="flex items-center text-gray-700">
                       <span className="w-2 h-2 bg-gray-400 rounded-full mr-3"></span>
-                      Booking Appointments 📅
+                      Booking Consulting Appointments 📅
                     </li>
                   </ul>
 
@@ -429,24 +449,54 @@ export default function ChatInterface() {
 
             {/* Dynamic Messages */}
             {isLoading ? (
-              <div className="text-center text-gray-500">Loading messages...</div>
+              <div className="text-center text-gray-500">
+                Loading messages...
+              </div>
             ) : (
               messages.map((msg) => (
                 <div key={msg.id} className="space-y-2">
                   {msg.role === "assistant" ? (
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                       <div className="text-gray-700 prose prose-sm max-w-none">
-                        <ReactMarkdown 
+                        <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            h2: ({children}) => <h2 className="text-lg font-semibold text-gray-900 mt-4 mb-2">{children}</h2>,
-                            h3: ({children}) => <h3 className="text-md font-semibold text-gray-800 mt-3 mb-1">{children}</h3>,
-                            strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                            ul: ({children}) => <ul className="list-disc pl-5 space-y-1">{children}</ul>,
-                            ol: ({children}) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
-                            li: ({children}) => <li className="text-gray-700">{children}</li>,
-                            p: ({children}) => <p className="text-gray-700 mb-2">{children}</p>,
-                            code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">{children}</code>,
+                            h2: ({ children }) => (
+                              <h2 className="text-lg font-semibold text-gray-900 mt-4 mb-2">
+                                {children}
+                              </h2>
+                            ),
+                            h3: ({ children }) => (
+                              <h3 className="text-md font-semibold text-gray-800 mt-3 mb-1">
+                                {children}
+                              </h3>
+                            ),
+                            strong: ({ children }) => (
+                              <strong className="font-semibold text-gray-900">
+                                {children}
+                              </strong>
+                            ),
+                            ul: ({ children }) => (
+                              <ul className="list-disc pl-5 space-y-1">
+                                {children}
+                              </ul>
+                            ),
+                            ol: ({ children }) => (
+                              <ol className="list-decimal pl-5 space-y-1">
+                                {children}
+                              </ol>
+                            ),
+                            li: ({ children }) => (
+                              <li className="text-gray-700">{children}</li>
+                            ),
+                            p: ({ children }) => (
+                              <p className="text-gray-700 mb-2">{children}</p>
+                            ),
+                            code: ({ children }) => (
+                              <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">
+                                {children}
+                              </code>
+                            ),
                           }}
                         >
                           {msg.content}
@@ -468,22 +518,48 @@ export default function ChatInterface() {
                 </div>
               ))
             )}
-            
+
             {/* Streaming Message */}
             {isStreaming && streamingMessage && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
                 <div className="text-gray-700 prose prose-sm max-w-none">
-                  <ReactMarkdown 
+                  <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      h2: ({children}) => <h2 className="text-lg font-semibold text-gray-900 mt-4 mb-2">{children}</h2>,
-                      h3: ({children}) => <h3 className="text-md font-semibold text-gray-800 mt-3 mb-1">{children}</h3>,
-                      strong: ({children}) => <strong className="font-semibold text-gray-900">{children}</strong>,
-                      ul: ({children}) => <ul className="list-disc pl-5 space-y-1">{children}</ul>,
-                      ol: ({children}) => <ol className="list-decimal pl-5 space-y-1">{children}</ol>,
-                      li: ({children}) => <li className="text-gray-700">{children}</li>,
-                      p: ({children}) => <p className="text-gray-700 mb-2">{children}</p>,
-                      code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">{children}</code>,
+                      h2: ({ children }) => (
+                        <h2 className="text-lg font-semibold text-gray-900 mt-4 mb-2">
+                          {children}
+                        </h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="text-md font-semibold text-gray-800 mt-3 mb-1">
+                          {children}
+                        </h3>
+                      ),
+                      strong: ({ children }) => (
+                        <strong className="font-semibold text-gray-900">
+                          {children}
+                        </strong>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc pl-5 space-y-1">{children}</ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal pl-5 space-y-1">
+                          {children}
+                        </ol>
+                      ),
+                      li: ({ children }) => (
+                        <li className="text-gray-700">{children}</li>
+                      ),
+                      p: ({ children }) => (
+                        <p className="text-gray-700 mb-2">{children}</p>
+                      ),
+                      code: ({ children }) => (
+                        <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">
+                          {children}
+                        </code>
+                      ),
                     }}
                   >
                     {streamingMessage}
@@ -491,12 +567,11 @@ export default function ChatInterface() {
                 </div>
               </div>
             )}
-            
-            {(sendMessageMutation.isPending || isStreaming) && !streamingMessage && (
-              <div className="text-left text-gray-500">
-                Thinking...
-              </div>
-            )}
+
+            {(sendMessageMutation.isPending || isStreaming) &&
+              !streamingMessage && (
+                <div className="text-left text-gray-500">Thinking...</div>
+              )}
 
             <div ref={messagesEndRef} />
           </div>
@@ -522,8 +597,9 @@ export default function ChatInterface() {
                 onClick={handleSend}
                 className="w-10 h-10 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
-                  borderColor: '#9ca3af'
+                  boxShadow:
+                    "inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)",
+                  borderColor: "#9ca3af",
                 }}
                 disabled={sendMessageMutation.isPending}
               >
@@ -537,15 +613,20 @@ export default function ChatInterface() {
                   onTouchStart={handleMicMouseDown}
                   onTouchEnd={handleMicMouseUp}
                   className={`w-10 h-10 bg-gradient-to-b from-gray-700 via-gray-800 to-gray-900 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-gray-300 hover:text-red-400 active:text-red-500 rounded-full p-0 border border-gray-350 hover:border-gray-300 transition-all duration-150 active:scale-95 ${
-                    isRecording ? 'animate-pulse border-red-500' : ''
+                    isRecording ? "animate-pulse border-red-500" : ""
                   }`}
                   style={{
-                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)',
-                    borderColor: isRecording ? '#ef4444' : '#9ca3af'
+                    boxShadow:
+                      "inset 0 1px 2px rgba(255,255,255,0.15), inset 0 -2px 4px rgba(0,0,0,0.4), 0 6px 12px rgba(0,0,0,0.25), 0 2px 4px rgba(0,0,0,0.1)",
+                    borderColor: isRecording ? "#ef4444" : "#9ca3af",
                   }}
                   disabled={sendAudioMutation.isPending}
                 >
-                  {isRecording ? <Square className="w-4 h-4 text-red-500" /> : <Mic className="w-4 h-4" />}
+                  {isRecording ? (
+                    <Square className="w-4 h-4 text-red-500" />
+                  ) : (
+                    <Mic className="w-4 h-4" />
+                  )}
                 </Button>
                 {isRecording && (
                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-500 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
