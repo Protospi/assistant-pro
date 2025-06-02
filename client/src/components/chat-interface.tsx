@@ -9,57 +9,111 @@ import type { Message } from "@shared/schema";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-// Logo Component
+// Logo Component with Animation
 function Logo({ className = "h-8 w-auto" }: { className?: string }) {
   return (
     <svg 
       className={className}
-      viewBox="0 0 120 40" 
+      viewBox="0 0 160 40" 
       fill="none" 
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Main "D" shape */}
-      <path
-        d="M8 8 C8 4, 12 4, 16 4 L24 4 C32 4, 36 8, 36 16 C36 24, 32 28, 24 28 L16 28 C12 28, 8 28, 8 24 Z"
-        fill="url(#gradient1)"
-        stroke="url(#gradient2)"
-        strokeWidth="1"
-      />
-      
-      {/* Inner highlight */}
-      <path
-        d="M12 10 C12 8, 14 8, 16 8 L22 8 C28 8, 32 12, 32 16 C32 20, 28 24, 22 24 L16 24 C14 24, 12 24, 12 22 Z"
-        fill="rgba(255,255,255,0.1)"
-      />
-      
-      {/* Circuit pattern elements */}
-      <circle cx="14" cy="12" r="1" fill="#60a5fa" />
-      <circle cx="18" cy="20" r="1" fill="#60a5fa" />
-      <circle cx="26" cy="14" r="1" fill="#60a5fa" />
-      <circle cx="30" cy="18" r="1" fill="#60a5fa" />
-      
-      {/* Connecting lines */}
-      <path d="M14 13 L18 19" stroke="#60a5fa" strokeWidth="0.5" opacity="0.6" />
-      <path d="M19 20 L26 14" stroke="#60a5fa" strokeWidth="0.5" opacity="0.6" />
-      <path d="M27 14 L30 17" stroke="#60a5fa" strokeWidth="0.5" opacity="0.6" />
-      
-      {/* Text "DROPS" */}
-      <text x="48" y="25" fontSize="18" fontWeight="600" fill="#1f2937" fontFamily="Inter, sans-serif">
-        DROPS
-      </text>
-      
-      {/* Gradient definitions */}
-      <defs>
-        <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="50%" stopColor="#1d4ed8" />
-          <stop offset="100%" stopColor="#1e40af" />
-        </linearGradient>
-        <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#60a5fa" />
-          <stop offset="100%" stopColor="#3b82f6" />
-        </linearGradient>
-      </defs>
+      {/* Robot Icon */}
+      <g>
+        {/* Robot head */}
+        <rect x="8" y="12" width="16" height="14" rx="2" fill="#4f46e5" stroke="#6366f1" strokeWidth="1">
+          <animate attributeName="fill" values="#4f46e5;#6366f1;#4f46e5" dur="3s" repeatCount="indefinite" />
+        </rect>
+        
+        {/* Robot eyes */}
+        <circle cx="12" cy="17" r="1.5" fill="#ffffff">
+          <animate attributeName="r" values="1.5;1;1.5" dur="2s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="20" cy="17" r="1.5" fill="#ffffff">
+          <animate attributeName="r" values="1.5;1;1.5" dur="2s" repeatCount="indefinite" />
+        </circle>
+        
+        {/* Robot mouth */}
+        <rect x="14" y="21" width="4" height="1" rx="0.5" fill="#ffffff" />
+        
+        {/* Robot antenna */}
+        <line x1="16" y1="12" x2="16" y2="8" stroke="#6366f1" strokeWidth="1" />
+        <circle cx="16" cy="8" r="1" fill="#ef4444">
+          <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+      </g>
+
+      {/* Pencil */}
+      <g>
+        <rect x="32" y="18" width="12" height="2" fill="#fbbf24" />
+        <polygon points="44,18 48,20 44,22" fill="#f59e0b" />
+        <rect x="30" y="19" width="2" height="2" fill="#ef4444" />
+        
+        {/* Pencil animation */}
+        <animateTransform
+          attributeName="transform"
+          type="translate"
+          values="0,0; 2,-1; 0,0"
+          dur="2s"
+          repeatCount="indefinite"
+        />
+      </g>
+
+      {/* Text "AGENT" with drawing animation */}
+      <g>
+        <text x="52" y="25" fontSize="16" fontWeight="600" fill="#1f2937" fontFamily="Inter, sans-serif">
+          <tspan>A</tspan>
+          <tspan>
+            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="0.5s" fill="freeze" />
+            G
+          </tspan>
+          <tspan>
+            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="1s" fill="freeze" />
+            E
+          </tspan>
+          <tspan>
+            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="1.5s" fill="freeze" />
+            N
+          </tspan>
+          <tspan>
+            <animate attributeName="opacity" values="0;1" dur="0.5s" begin="2s" fill="freeze" />
+            T
+          </tspan>
+        </text>
+        
+        {/* Drawing line effect */}
+        <path 
+          d="M52 27 L92 27" 
+          stroke="#6366f1" 
+          strokeWidth="1" 
+          strokeDasharray="40"
+          strokeDashoffset="40"
+        >
+          <animate 
+            attributeName="stroke-dashoffset" 
+            values="40;0" 
+            dur="2.5s" 
+            begin="0.5s"
+            fill="freeze" 
+          />
+        </path>
+      </g>
+
+      {/* Floating particles */}
+      <g opacity="0.6">
+        <circle cx="100" cy="15" r="1" fill="#6366f1">
+          <animate attributeName="cy" values="15;10;15" dur="3s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="105" cy="20" r="0.8" fill="#8b5cf6">
+          <animate attributeName="cy" values="20;25;20" dur="2.5s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="110" cy="12" r="0.6" fill="#06b6d4">
+          <animate attributeName="cy" values="12;8;12" dur="2s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.3;0.7;0.3" dur="2s" repeatCount="indefinite" />
+        </circle>
+      </g>
     </svg>
   );
 }
